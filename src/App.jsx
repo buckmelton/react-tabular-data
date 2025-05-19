@@ -7,6 +7,8 @@ export default function App() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -28,11 +30,33 @@ export default function App() {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    if (searchTerm) {
+      let results = users.filter(user => 
+        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredUsers(results);
+    } else {
+      setFilteredUsers(users);
+    }
+  }, [searchTerm, users]);
+
+  const handleChangeSearchInput = (e) => {
+    setSearchTerm(e.target.value);
+  }
+
   if (error) return <p>Error: {error}</p>;
 
   return (
     <>
+      <input
+        type="text"
+        placeholder="Search by name..."
+        value={searchTerm}
+        onChange={handleChangeSearchInput}
+      />
       <h1>Tabular Data</h1>
+      {loading && <p>Loading...</p>}
       <table border="1" cellPadding="10" cellSpacing="0">
         <thead>
           <tr>
@@ -43,8 +67,7 @@ export default function App() {
           </tr>
         </thead>
         <tbody>
-          {loading && <p>Loading...</p>}
-          {!loading && users.map(user => (
+          {!loading && filteredUsers.map(user => (
             <tr key={user.id}>
               <td>{user.id}</td>
               <td>{user.name}</td>
