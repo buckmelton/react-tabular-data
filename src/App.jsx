@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import Pagination from './components/Pagination.jsx';
 
 export default function App() {
   const [users, setUsers] = useState([]);
@@ -10,6 +11,8 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [sortDirection, setSortDirection] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage, setUsersPerPage] = useState(8);
 
   useEffect(() => {
     setLoading(true);
@@ -62,6 +65,10 @@ export default function App() {
     setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
   }
 
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+
   if (error) return <p>Error: {error}</p>;
 
   return (
@@ -72,7 +79,7 @@ export default function App() {
         value={searchTerm}
         onChange={handleChangeSearchInput}
       />
-      <h1>Tabular Data</h1>
+      <h1>Buck Harbor Outfitters Customers</h1>
       {loading && <p>Loading...</p>}
       <table border="1" cellPadding="10" cellSpacing="0">
         <thead>
@@ -85,12 +92,12 @@ export default function App() {
           </tr>
         </thead>
         <tbody>
-          {!loading && filteredUsers.length == 0 &&
+          {!loading && currentUsers.length == 0 &&
             <tr>
               <td colSpan="5">No users found.</td>
             </tr>
           }
-          {!loading && filteredUsers.map(user => (
+          {!loading && currentUsers.map(user => (
             <tr key={user.id}>
               <td>{user.id}</td>
               <td>{user.firstName}</td>
@@ -101,6 +108,12 @@ export default function App() {
           ))}
         </tbody>
       </table>
+      <Pagination
+        usersPerPage={usersPerPage}
+        totalUsers={users.length}
+        setCurrentPage={setCurrentPage}
+        currentPage={currentPage}
+      />
     </>
   )
 }
