@@ -15,12 +15,12 @@ export default function App() {
     setLoading(true);
     const fetchUsers = async () => {
       try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/users');
+        const response = await fetch('https://dummyjson.com/users');
         if (!response.ok) {
           throw new Error('Unable to fetch users, please try again later.');
         }
         const resData = await response.json();
-        setUsers(resData);
+        setUsers(resData.users);
       } catch(error) {
         setError(error.message);
       } finally {
@@ -34,7 +34,7 @@ export default function App() {
   useEffect(() => {
     if (searchTerm) {
       let results = users.filter(user => 
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        user.lastName.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredUsers(results);
     } else {
@@ -45,10 +45,10 @@ export default function App() {
   useEffect(() => {
     setFilteredUsers([...filteredUsers]
       .sort((userA, userB) => {
-        const compA = userA.company.name.toLowerCase();
-        const compB = userB.company.name.toLowerCase();
-        if (compA < compB) return sortDirection === 'asc' ? -1 : 1;
-        if (compB < compA) return sortDirection === 'asc' ? 1 : -1;
+        const lastNameA = userA.lastName.toLowerCase();
+        const lastNameB = userB.lastName.toLowerCase();
+        if (lastNameA < lastNameB) return sortDirection === 'asc' ? -1 : 1;
+        if (lastNameB < lastNameA) return sortDirection === 'asc' ? 1 : -1;
         return 0;
       })
     );
@@ -58,7 +58,7 @@ export default function App() {
     setSearchTerm(e.target.value);
   }
 
-  const handleSortByCompany = (e) => {
+  const handleSortByLastName = (e) => {
     setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
   }
 
@@ -68,7 +68,7 @@ export default function App() {
     <>
       <input
         type="text"
-        placeholder="Search by name..."
+        placeholder="Search by last name..."
         value={searchTerm}
         onChange={handleChangeSearchInput}
       />
@@ -78,21 +78,23 @@ export default function App() {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Name</th>
+            <th>First Name</th>
+            <th onClick={handleSortByLastName}>Last Name</th>
             <th>Email</th>
-            <th onClick={handleSortByCompany}>Company</th>
+            <th>Company</th>
           </tr>
         </thead>
         <tbody>
           {!loading && filteredUsers.length == 0 &&
             <tr>
-              <td colSpan="4">No users found.</td>
+              <td colSpan="5">No users found.</td>
             </tr>
           }
           {!loading && filteredUsers.map(user => (
             <tr key={user.id}>
               <td>{user.id}</td>
-              <td>{user.name}</td>
+              <td>{user.firstName}</td>
+              <td>{user.lastName}</td>
               <td>{user.email}</td>
               <td>{user.company.name}</td>
             </tr>
