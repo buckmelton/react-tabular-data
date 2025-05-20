@@ -9,6 +9,7 @@ export default function App() {
   const [error, setError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const [sortDirection, setSortDirection] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -41,8 +42,24 @@ export default function App() {
     }
   }, [searchTerm, users]);
 
+  useEffect(() => {
+    setFilteredUsers([...filteredUsers]
+      .sort((userA, userB) => {
+        const compA = userA.company.name.toLowerCase();
+        const compB = userB.company.name.toLowerCase();
+        if (compA < compB) return sortDirection === 'asc' ? -1 : 1;
+        if (compB < compA) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      })
+    );
+  }, [sortDirection]);
+
   const handleChangeSearchInput = (e) => {
     setSearchTerm(e.target.value);
+  }
+
+  const handleSortByCompany = (e) => {
+    setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
   }
 
   if (error) return <p>Error: {error}</p>;
@@ -63,10 +80,15 @@ export default function App() {
             <th>ID</th>
             <th>Name</th>
             <th>Email</th>
-            <th>Company</th>
+            <th onClick={handleSortByCompany}>Company</th>
           </tr>
         </thead>
         <tbody>
+          {!loading && filteredUsers.length == 0 &&
+            <tr>
+              <td colSpan="4">No users found.</td>
+            </tr>
+          }
           {!loading && filteredUsers.map(user => (
             <tr key={user.id}>
               <td>{user.id}</td>
