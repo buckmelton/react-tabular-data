@@ -35,27 +35,27 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    let results = users;
+
     if (searchTerm) {
-      let results = users.filter(user => 
+      results = results.filter(user => 
         user.lastName.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredUsers(results);
-    } else {
-      setFilteredUsers(users);
     }
-  }, [searchTerm, users]);
 
-  useEffect(() => {
-    setFilteredUsers([...filteredUsers]
-      .sort((userA, userB) => {
+    if (sortDirection) {
+      results = [...results].sort((userA, userB) => {
         const lastNameA = userA.lastName.toLowerCase();
         const lastNameB = userB.lastName.toLowerCase();
         if (lastNameA < lastNameB) return sortDirection === 'asc' ? -1 : 1;
         if (lastNameB < lastNameA) return sortDirection === 'asc' ? 1 : -1;
         return 0;
-      })
-    );
-  }, [sortDirection]);
+      });
+    }
+
+    setFilteredUsers(results);
+
+  }, [searchTerm, users, sortDirection]);
 
   const handleChangeSearchInput = (e) => {
     setSearchTerm(e.target.value);
@@ -79,7 +79,7 @@ export default function App() {
         value={searchTerm}
         onChange={handleChangeSearchInput}
       />
-      <h1>Buck Harbor Outfitters Customers</h1>
+      <h1>Henlopen Outfitters Customer List</h1>
       {loading && <p>Loading...</p>}
       <table border="1" cellPadding="10" cellSpacing="0">
         <thead>
